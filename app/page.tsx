@@ -57,7 +57,7 @@ export default function HomePage() {
         <section id="home" className="relative">
           <div className="absolute inset-0 z-0">
             <Image
-              src="/jalgaon_skyline.jpg"
+              src="/jalgaon.jpg"
               alt="Jalgaon Real Estate"
               fill
               className="object-cover brightness-[0.7]"
