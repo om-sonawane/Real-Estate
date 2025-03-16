@@ -395,7 +395,7 @@ export default function HomePage() {
                     </div>
                     <div>
                       <p className="font-medium">Email</p>
-                      <p className="text-muted-foreground">pramod@shreeganeshrealestate.com</p>
+                      <p className="text-muted-foreground">sgit.jal@gmail.com</p>
                     </div>
                   </div>
 
