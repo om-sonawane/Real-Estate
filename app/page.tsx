@@ -1,25 +1,96 @@
 "use client"
 
+import type React from "react"
+
 import Link from "next/link"
 import Image from "next/image"
 import { MapPin, Phone, Mail, Star } from "lucide-react"
+import { useRef, useState, useEffect } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import PropertySlider from "@/components/property-slider"
 import ContactForm from "@/components/contact-form"
 import { ThemeToggle } from "@/components/theme-toggle"
+import CallNowModal from "@/components/call-now-modal"
 import { useTheme } from "next-themes"
-import { useEffect, useState } from "react"
+
+// Testimonial data
+const testimonials = [
+  {
+    id: 1,
+    name: "Rajesh Patil",
+    location: "Jalgaon, Maharashtra",
+    text: "Pramod helped us find our dream home in Jalgaon. His knowledge of the local market and dedication to understanding our needs made the process smooth and enjoyable.",
+    rating: 5,
+    image: "/placeholder.svg?height=40&width=40",
+  },
+  {
+    id: 2,
+    name: "Sneha Sharma",
+    location: "MIDC Area, Jalgaon",
+    text: "After struggling to sell our property for months, we approached Shree Ganesh Real Estate. Within 3 weeks, they found us a buyer at a great price. Their marketing strategy and network is impressive!",
+    rating: 5,
+    image: "/placeholder.svg?height=40&width=40",
+  },
+  {
+    id: 3,
+    name: "Amit Deshmukh",
+    location: "Pimprala, Jalgaon",
+    text: "As first-time homebuyers, we were nervous about the process. Pramod guided us through every step with patience and expertise. He found us a property that matched all our requirements within our budget.",
+    rating: 5,
+    image: "/placeholder.svg?height=40&width=40",
+  },
+  {
+    id: 4,
+    name: "Priya Joshi",
+    location: "Gandhi Nagar, Jalgaon",
+    text: "I was looking for a commercial property for my business. The team at Shree Ganesh Real Estate understood my requirements perfectly and showed me options that I hadn't even considered. Very professional service!",
+    rating: 4,
+    image: "/placeholder.svg?height=40&width=40",
+  },
+  {
+    id: 5,
+    name: "Vikram Singh",
+    location: "Ring Road, Jalgaon",
+    text: "We were relocating to Jalgaon and needed to find a home quickly. Pramod arranged virtual tours of multiple properties and helped us finalize one before we even arrived in the city. Exceptional service!",
+    rating: 5,
+    image: "/placeholder.svg?height=40&width=40",
+  },
+]
 
 export default function HomePage() {
   const { theme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  const [isCallModalOpen, setIsCallModalOpen] = useState(false)
+  const [displayedTestimonials, setDisplayedTestimonials] = useState(testimonials.slice(0, 3))
+
+  const propertiesRef = useRef<HTMLElement>(null)
+  const contactRef = useRef<HTMLElement>(null)
 
   // Prevent hydration mismatch
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  const scrollToSection = (ref: React.RefObject<HTMLElement>) => {
+    if (ref.current) {
+      ref.current.scrollIntoView({ behavior: "smooth" })
+    }
+  }
+
+  const openCallModal = () => {
+    setIsCallModalOpen(true)
+  }
+
+  const closeCallModal = () => {
+    setIsCallModalOpen(false)
+  }
+
+  const shuffleTestimonials = () => {
+    const shuffled = [...testimonials].sort(() => 0.5 - Math.random())
+    setDisplayedTestimonials(shuffled.slice(0, 3))
+  }
 
   if (!mounted) return null
 
@@ -36,16 +107,30 @@ export default function HomePage() {
             <Link href="#home" className="text-sm font-medium hover:underline underline-offset-4">
               Home
             </Link>
-            <Link href="#properties" className="text-sm font-medium hover:underline underline-offset-4">
+            <Link
+              href="#properties"
+              className="text-sm font-medium hover:underline underline-offset-4"
+              onClick={(e) => {
+                e.preventDefault()
+                scrollToSection(propertiesRef)
+              }}
+            >
               Properties
             </Link>
-            <Link href="#contact" className="text-sm font-medium hover:underline underline-offset-4">
+            <Link
+              href="#contact"
+              className="text-sm font-medium hover:underline underline-offset-4"
+              onClick={(e) => {
+                e.preventDefault()
+                scrollToSection(contactRef)
+              }}
+            >
               Contact
             </Link>
           </nav>
           <div className="flex items-center gap-4">
             <ThemeToggle />
-            <Button size="sm">
+            <Button size="sm" onClick={openCallModal}>
               <Phone className="mr-2 h-4 w-4" /> Call Now
             </Button>
           </div>
@@ -76,10 +161,19 @@ export default function HomePage() {
                 since 2010.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                <Button size="lg" className="bg-primary hover:bg-primary/90 animate-pulse">
+                <Button
+                  size="lg"
+                  className="bg-primary hover:bg-primary/90 animate-pulse"
+                  onClick={() => scrollToSection(propertiesRef)}
+                >
                   Browse Properties
                 </Button>
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-black">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-white text-white hover:bg-white hover:text-black"
+                  onClick={() => scrollToSection(contactRef)}
+                >
                   Contact Us
                 </Button>
               </div>
@@ -167,7 +261,7 @@ export default function HomePage() {
         </section>
 
         {/* Featured Properties Section */}
-        <section id="properties" className="py-12 md:py-16 bg-muted/30">
+        <section id="properties" ref={propertiesRef} className="py-12 md:py-16 bg-muted/30">
           <div className="container">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
               <div>
@@ -196,35 +290,44 @@ export default function HomePage() {
             </div>
 
             <div className="grid md:grid-cols-3 gap-6">
-              {[1, 2, 3].map((i) => (
+              {displayedTestimonials.map((testimonial) => (
                 <Card
-                  key={i}
+                  key={testimonial.id}
                   className="testimonial-card border-none shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-1 dark:bg-accent/50 dark:border-accent/70"
                 >
                   <CardContent className="p-6">
                     <div className="flex items-center gap-1 text-yellow-500 mb-4">
-                      <Star className="fill-yellow-500 h-4 w-4" />
-                      <Star className="fill-yellow-500 h-4 w-4" />
-                      <Star className="fill-yellow-500 h-4 w-4" />
-                      <Star className="fill-yellow-500 h-4 w-4" />
-                      <Star className="fill-yellow-500 h-4 w-4" />
+                      {[...Array(testimonial.rating)].map((_, i) => (
+                        <Star key={i} className="fill-yellow-500 h-4 w-4" />
+                      ))}
+                      {[...Array(5 - testimonial.rating)].map((_, i) => (
+                        <Star key={i} className="h-4 w-4 text-muted-foreground" />
+                      ))}
                     </div>
-                    <p className="text-muted-foreground mb-4">
-                      "Pramod helped us find our dream home in Jalgaon. His knowledge of the local market and dedication
-                      to understanding our needs made the process smooth and enjoyable."
-                    </p>
+                    <p className="text-muted-foreground mb-4">"{testimonial.text}"</p>
                     <div className="flex items-center gap-3">
                       <div className="relative h-10 w-10 rounded-full overflow-hidden">
-                        <Image src="/placeholder.svg?height=40&width=40" alt="Client" fill className="object-cover" />
+                        <Image
+                          src={testimonial.image || "/placeholder.svg"}
+                          alt={testimonial.name}
+                          fill
+                          className="object-cover"
+                        />
                       </div>
                       <div>
-                        <p className="font-medium">Rajesh Patil</p>
-                        <p className="text-xs text-muted-foreground">Jalgaon, Maharashtra</p>
+                        <p className="font-medium">{testimonial.name}</p>
+                        <p className="text-xs text-muted-foreground">{testimonial.location}</p>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
               ))}
+            </div>
+
+            <div className="flex justify-center mt-8">
+              <Button variant="outline" onClick={shuffleTestimonials}>
+                See More Reviews
+              </Button>
             </div>
           </div>
         </section>
@@ -264,7 +367,7 @@ export default function HomePage() {
         </section>
 
         {/* Contact Section */}
-        <section id="contact" className="py-12 md:py-16 lg:py-20">
+        <section id="contact" ref={contactRef} className="py-12 md:py-16 lg:py-20">
           <div className="container">
             <div className="grid md:grid-cols-2 gap-8">
               <div className="space-y-4 animate-slideInLeft">
@@ -282,7 +385,7 @@ export default function HomePage() {
                     </div>
                     <div>
                       <p className="font-medium">Phone</p>
-                      <p className="text-muted-foreground">+91 9225124961</p>
+                      <p className="text-muted-foreground">+91 98765 43210</p>
                     </div>
                   </div>
 
@@ -466,6 +569,9 @@ export default function HomePage() {
           </div>
         </div>
       </footer>
+
+      {/* Call Now Modal */}
+      <CallNowModal isOpen={isCallModalOpen} onClose={closeCallModal} />
     </div>
   )
 }

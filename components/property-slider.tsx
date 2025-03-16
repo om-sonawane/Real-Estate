@@ -7,9 +7,10 @@ import { ChevronLeft, ChevronRight, MapPin, Bed, Bath, Square } from "lucide-rea
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import PropertyModal, { type PropertyType } from "./property-modal"
 
 // Sample property data
-const properties = [
+const properties: PropertyType[] = [
   {
     id: 1,
     title: "Modern 3BHK Apartment",
@@ -20,6 +21,11 @@ const properties = [
     baths: 2,
     area: "1,200 sq.ft",
     image: "/placeholder.svg?height=300&width=400",
+    description:
+      "This modern 3BHK apartment offers spacious rooms with excellent ventilation and natural light. Located in the prime MIDC area, it provides easy access to schools, hospitals, and shopping centers. The apartment features high-quality finishes and modern amenities.",
+    features: ["Modular Kitchen", "Vitrified Flooring", "Balcony", "Reserved Parking", "24/7 Security", "Power Backup"],
+    yearBuilt: "2020",
+    amenities: ["Swimming Pool", "Gym", "Children's Play Area", "Community Hall"],
   },
   {
     id: 2,
@@ -31,6 +37,11 @@ const properties = [
     baths: 3,
     area: "2,500 sq.ft",
     image: "/placeholder.svg?height=300&width=400",
+    description:
+      "Luxurious 4BHK villa in the serene locality of Pimprala. This property features a beautiful garden, spacious rooms, and modern amenities. Perfect for families looking for a premium lifestyle with privacy and comfort.",
+    features: ["Garden", "Terrace", "Modular Kitchen", "Marble Flooring", "Car Parking", "CCTV Surveillance"],
+    yearBuilt: "2019",
+    amenities: ["Private Garden", "Terrace Garden", "Servant Quarter", "Home Theater"],
   },
   {
     id: 3,
@@ -42,6 +53,10 @@ const properties = [
     baths: 1,
     area: "450 sq.ft",
     image: "/placeholder.svg?height=300&width=400",
+    description:
+      "Prime commercial shop space located on the busy Ring Road with high footfall. Ideal for retail businesses, showrooms, or offices. The property offers excellent visibility and accessibility, making it a great investment opportunity.",
+    features: ["Main Road Facing", "Ample Parking", "High Ceiling", "24/7 Water Supply", "Separate Entrance"],
+    yearBuilt: "2018",
   },
   {
     id: 4,
@@ -53,6 +68,11 @@ const properties = [
     baths: 2,
     area: "950 sq.ft",
     image: "/placeholder.svg?height=300&width=400",
+    description:
+      "Cozy 2BHK apartment with a private garden area in the peaceful locality of Mehrun. The apartment offers a perfect blend of comfort and convenience with modern amenities and excellent connectivity.",
+    features: ["Private Garden", "Modular Kitchen", "Granite Flooring", "Reserved Parking", "24/7 Security"],
+    yearBuilt: "2021",
+    amenities: ["Gym", "Children's Play Area", "Jogging Track", "Party Hall"],
   },
   {
     id: 5,
@@ -64,6 +84,11 @@ const properties = [
     baths: 3,
     area: "1,450 sq.ft",
     image: "/placeholder.svg?height=300&width=400",
+    description:
+      "Premium 3BHK flat in the heart of Gandhi Nagar with luxurious interiors and top-notch amenities. The property offers spacious rooms, modern kitchen, and premium fittings throughout. Located in a gated community with excellent security.",
+    features: ["Italian Marble Flooring", "Designer Kitchen", "Premium Fittings", "Covered Parking", "Power Backup"],
+    yearBuilt: "2022",
+    amenities: ["Swimming Pool", "Gym", "Clubhouse", "Indoor Games", "Landscaped Garden"],
   },
 ]
 
@@ -71,6 +96,8 @@ export default function PropertySlider() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const sliderRef = useRef(null)
   const [visibleItems, setVisibleItems] = useState(3)
+  const [selectedProperty, setSelectedProperty] = useState<PropertyType | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   useEffect(() => {
     const handleResize = () => {
@@ -98,6 +125,15 @@ export default function PropertySlider() {
     setCurrentIndex((prevIndex) => (prevIndex <= 0 ? maxIndex : prevIndex - 1))
   }
 
+  const handleViewDetails = (property: PropertyType) => {
+    setSelectedProperty(property)
+    setIsModalOpen(true)
+  }
+
+  const closeModal = () => {
+    setIsModalOpen(false)
+  }
+
   return (
     <div className="relative">
       <div className="overflow-hidden" ref={sliderRef}>
@@ -107,7 +143,7 @@ export default function PropertySlider() {
         >
           {properties.map((property) => (
             <div key={property.id} className="w-full sm:w-1/2 lg:w-1/3 flex-shrink-0 p-2">
-              <PropertyCard property={property} />
+              <PropertyCard property={property} onViewDetails={handleViewDetails} />
             </div>
           ))}
         </div>
@@ -133,11 +169,18 @@ export default function PropertySlider() {
           <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
+
+      <PropertyModal property={selectedProperty} isOpen={isModalOpen} onClose={closeModal} />
     </div>
   )
 }
 
-function PropertyCard({ property }) {
+interface PropertyCardProps {
+  property: PropertyType
+  onViewDetails: (property: PropertyType) => void
+}
+
+function PropertyCard({ property, onViewDetails }: PropertyCardProps) {
   return (
     <Card className="property-card overflow-hidden h-full transition-all hover:shadow-lg hover:-translate-y-1 duration-300 dark:bg-accent/50 dark:border-accent/70">
       <div className="relative aspect-[4/3]">
@@ -173,7 +216,7 @@ function PropertyCard({ property }) {
         </div>
       </CardContent>
       <CardFooter className="p-4 pt-0">
-        <Button variant="outline" className="w-full">
+        <Button variant="outline" className="w-full" onClick={() => onViewDetails(property)}>
           View Details
         </Button>
       </CardFooter>
